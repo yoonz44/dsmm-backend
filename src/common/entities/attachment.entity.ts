@@ -1,10 +1,6 @@
-import { ObjectType, InputType, ID, Field } from '@nestjs/graphql';
+import { CoreEntity } from 'src/common/entities/core.entity';
 
-@InputType('AttachmentInput', { isAbstract: true })
-@ObjectType()
-export class Attachment {
-  @Field(() => ID, { nullable: true })
-  id?: number;
+export class Attachment extends CoreEntity {
   thumbnail?: string;
   original?: string;
 }

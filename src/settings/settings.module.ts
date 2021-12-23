@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { SettingsService } from './settings.service';
-import { SettingsResolver } from './settings.resolver';
+import { SettingsController } from './settings.controller';
 
 @Module({
-  providers: [SettingsResolver, SettingsService]
+  controllers: [SettingsController],
+  providers: [SettingsService],
 })
 export class SettingsModule {}

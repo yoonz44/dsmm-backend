@@ -1,115 +1,117 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderInput } from './dto/create-order.input';
-import { UpdateOrderInput } from './dto/update-order.input';
-import {
-  CheckoutVerificationInput,
-  VerifiedCheckoutData,
-} from './dto/verify-checkout.input';
-import ordersJson from './orders.json';
-import orderStatusJson from './order-statuses.json';
-import { paginate } from 'src/common/pagination/paginate';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { GetOrdersDto, OrderPaginator } from './dto/get-orders.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import ordersJson from '@db/orders.json';
+import orderStatusJson from '@db/order-statuses.json';
 import { plainToClass } from 'class-transformer';
 import { Order } from './entities/order.entity';
-import { GetOrdersArgs, OrderPaginator } from './dto/get-orders.args';
-import { GetOrderArgs } from './dto/get-order.args';
-import {
-  GetOrderStatusesArgs,
-  OrderStatusPaginator,
-} from './dto/get-order-statuses.args';
 import { OrderStatus } from './entities/order-status.entity';
+import { paginate } from 'src/common/pagination/paginate';
 import {
-  CreateOrderStatusInput,
-  UpdateOrderStatusInput,
-} from './dto/create-order-status.input';
+  GetOrderStatusesDto,
+  OrderStatusPaginator,
+} from './dto/get-order-statuses.dto';
+import {
+  CheckoutVerificationDto,
+  VerifiedCheckoutData,
+} from './dto/verify-checkout.dto';
+import {
+  CreateOrderStatusDto,
+  UpdateOrderStatusDto,
+} from './dto/create-order-status.dto';
 const orders = plainToClass(Order, ordersJson);
 const orderStatus = plainToClass(OrderStatus, orderStatusJson);
 @Injectable()
 export class OrdersService {
   private orders: Order[] = orders;
   private orderStatus: OrderStatus[] = orderStatus;
-  create(createOrderInput: CreateOrderInput) {
+  create(createOrderInput: CreateOrderDto) {
     return this.orders[0];
   }
 
   getOrders({
-    first,
+    limit,
     page,
     customer_id,
     tracking_number,
+    search,
     shop_id,
-  }: GetOrdersArgs): OrderPaginator {
-    const startIndex = (page - 1) * first;
-    const endIndex = page * first;
+  }: GetOrdersDto): OrderPaginator {
+    if (!page) page = 1;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
     let data: Order[] = this.orders;
 
-    if (shop_id) {
+    if (shop_id && shop_id !== 'undefined') {
       data = this.orders?.filter((p) => p?.shop?.id === Number(shop_id));
     }
     const results = data.slice(startIndex, endIndex);
-
+    const url = `/orders?search=${search}&limit=${limit}`;
     return {
       data: results,
-      paginatorInfo: paginate(data.length, page, first, results.length),
+      ...paginate(data.length, page, limit, results.length, url),
     };
   }
 
-  getOrder({ id, tracking_number }: GetOrderArgs): Order {
-    let parentOrder = undefined;
-    if (id) {
-      parentOrder = this.orders.find((p) => p.id === Number(id));
-    } else {
-      parentOrder = this.orders.find(
-        (p) => p.tracking_number === tracking_number,
-      );
-    }
+  getOrderById(id: number): Order {
+    return this.orders.find((p) => p.id === Number(id));
+  }
+  getOrderByTrackingNumber(tracking_number: string): Order {
+    const parentOrder = this.orders.find(
+      (p) => p.tracking_number === tracking_number,
+    );
     if (!parentOrder) {
       return this.orders[0];
     }
     return parentOrder;
   }
   getOrderStatuses({
-    first,
+    limit,
     page,
-    text,
+    search,
     orderBy,
-  }: GetOrderStatusesArgs): OrderStatusPaginator {
-    const startIndex = (page - 1) * first;
-    const endIndex = page * first;
+  }: GetOrderStatusesDto): OrderStatusPaginator {
+    if (!page || page.toString() === 'undefined') page = 1;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
     const data: OrderStatus[] = this.orderStatus;
 
     // if (shop_id) {
     //   data = this.orders?.filter((p) => p?.shop?.id === shop_id);
     // }
     const results = data.slice(startIndex, endIndex);
+    const url = `/order-status?search=${search}&limit=${limit}`;
 
     return {
       data: results,
-      paginatorInfo: paginate(data.length, page, first, results.length),
+      ...paginate(data.length, page, limit, results.length, url),
     };
   }
-  getOrderStatus(id: number) {
-    return this.orderStatus.find((p) => p.id === Number(id));
+  getOrderStatus(slug: string) {
+    return this.orderStatus.find((p) => p.name === slug);
   }
-  update(id: number, updateOrderInput: UpdateOrderInput) {
+  update(id: number, updateOrderInput: UpdateOrderDto) {
     return this.orders[0];
   }
 
   remove(id: number) {
     return `This action removes a #${id} order`;
   }
-  verifyCheckout(input: CheckoutVerificationInput): VerifiedCheckoutData {
+  verifyCheckout(input: CheckoutVerificationDto): VerifiedCheckoutData {
     return {
       total_tax: 0,
       shipping_charge: 0,
       unavailable_products: [],
-      wallet_amount: 0,
       wallet_currency: 0,
+      wallet_amount: 0,
     };
   }
-  createOrderStatus(createOrderStatusInput: CreateOrderStatusInput) {
+  createOrderStatus(createOrderStatusInput: CreateOrderStatusDto) {
     return this.orderStatus[0];
   }
-  updateOrderStatus(updateOrderStatusInput: UpdateOrderStatusInput) {
+  updateOrderStatus(updateOrderStatusInput: UpdateOrderStatusDto) {
     return this.orderStatus[0];
   }
 }

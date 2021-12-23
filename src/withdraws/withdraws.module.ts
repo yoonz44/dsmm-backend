@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { WithdrawsService } from './withdraws.service';
-import { WithdrawsResolver } from './withdraws.resolver';
+import { WithdrawsController } from './withdraws.controller';
 
 @Module({
-  providers: [WithdrawsResolver, WithdrawsService]
+  controllers: [WithdrawsController],
+  providers: [WithdrawsService],
 })
 export class WithdrawsModule {}

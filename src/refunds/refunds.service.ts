@@ -1,32 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { paginate } from 'src/common/pagination/paginate';
-import { CreateRefundInput } from './dto/create-refund.input';
-import { GetRefundsArgs } from './dto/get-refunds.args';
-import { UpdateRefundInput } from './dto/update-refund.input';
+import { CreateRefundDto } from './dto/create-refund.dto';
+import { UpdateRefundDto } from './dto/update-refund.dto';
 
 @Injectable()
 export class RefundsService {
-  create(createRefundInput: CreateRefundInput) {
-    return {
-      id: 1,
-      ...createRefundInput,
-    };
+  create(createRefundDto: CreateRefundDto) {
+    return 'This action adds a new refund';
   }
 
-  findAll({ first, page }: GetRefundsArgs) {
-    const data = [];
-    const results = [];
-    return {
-      data: data,
-      paginatorInfo: paginate(data.length, page, first, results.length),
-    };
+  findAll() {
+    return `This action returns all refunds`;
   }
 
   findOne(id: number) {
     return `This action returns a #${id} refund`;
   }
 
-  update(id: number, updateRefundInput: UpdateRefundInput) {
+  update(id: number, updateRefundDto: UpdateRefundDto) {
     return `This action updates a #${id} refund`;
   }
 

@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { SettingsInput } from './dto/update-setting.input';
+import { CreateSettingDto } from './dto/create-setting.dto';
+import { UpdateSettingDto } from './dto/update-setting.dto';
 import { Setting } from './entities/setting.entity';
 import settingsJson from './settings.json';
 
 const settings = plainToClass(Setting, settingsJson);
-
 @Injectable()
 export class SettingsService {
   private settings: Setting = settings;
-  // create(createSettingInput: CreateSettingInput) {
-  //   return 'This action adds a new setting';
-  // }
+  create(createSettingDto: CreateSettingDto) {
+    return this.settings;
+  }
 
-  getSettings() {
+  findAll() {
     return this.settings;
   }
 
@@ -21,8 +21,7 @@ export class SettingsService {
     return `This action returns a #${id} setting`;
   }
 
-  updateSettings(updateSettingsInput: SettingsInput) {
-    console.log(updateSettingsInput);
+  update(id: number, updateSettingDto: UpdateSettingDto) {
     return this.settings;
   }
 

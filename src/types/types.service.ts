@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { CreateTypeInput } from './dto/create-type.input';
-import { UpdateTypeInput } from './dto/update-type.input';
+import { CreateTypeDto } from './dto/create-type.dto';
+import { UpdateTypeDto } from './dto/update-type.dto';
 import { Type } from './entities/type.entity';
-import typesJson from './types.json';
+
+import typesJson from '@db/types.json';
 import Fuse from 'fuse.js';
-import { GetTypesArgs } from './dto/get-types.args';
-import { GetTypeArgs } from './dto/get-type.args';
+import { GetTypesDto } from './dto/get-types.dto';
+
 const types = plainToClass(Type, typesJson);
 const options = {
   keys: ['name'],
@@ -17,11 +18,7 @@ const fuse = new Fuse(types, options);
 export class TypesService {
   private types: Type[] = types;
 
-  create(createTypeInput: CreateTypeInput) {
-    return this.types[0];
-  }
-
-  getTypes({ text }: GetTypesArgs) {
+  getTypes({ text }: GetTypesDto) {
     let data: Type[] = this.types;
     if (text?.replace(/%/g, '')) {
       data = fuse.search(text)?.map(({ item }) => item);
@@ -29,18 +26,23 @@ export class TypesService {
     return data;
   }
 
-  getType({ id, slug }: GetTypeArgs): Type {
-    if (id) {
-      return this.types.find((p) => p.id === Number(id));
-    }
+  getTypeBySlug(slug: string): Type {
     return this.types.find((p) => p.slug === slug);
+  }
+
+  create(createTypeDto: CreateTypeDto) {
+    return this.types[0];
+  }
+
+  findAll() {
+    return `This action returns all types`;
   }
 
   findOne(id: number) {
     return `This action returns a #${id} type`;
   }
 
-  update(id: number, updateTypeInput: UpdateTypeInput) {
+  update(id: number, updateTypeDto: UpdateTypeDto) {
     return this.types[0];
   }
 

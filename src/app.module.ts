@@ -1,50 +1,46 @@
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
 import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
-import { SettingsModule } from './settings/settings.module';
-import { CouponsModule } from './coupons/coupons.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { AttributesModule } from './attributes/attributes.module';
-import { AddressesModule } from './addresses/addresses.module';
+import { ShippingsModule } from './shippings/shippings.module';
+import { TaxesModule } from './taxes/taxes.module';
+import { TagsModule } from './tags/tags.module';
 import { ShopsModule } from './shops/shops.module';
 import { TypesModule } from './types/types.module';
-import { TagsModule } from './tags/tags.module';
-import { UploadsModule } from './uploads/uploads.module';
-// import { CommonModule } from './common/common.module';
 import { WithdrawsModule } from './withdraws/withdraws.module';
-import { TaxesModule } from './taxes/taxes.module';
-import { ShippingsModule } from './shippings/shippings.module';
-import { AnalyticsModule } from './analytics/analytics.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { SettingsModule } from './settings/settings.module';
+import { CouponsModule } from './coupons/coupons.module';
+import { AddressesModule } from './addresses/addresses.module';
 import { ImportsModule } from './imports/imports.module';
-import { WalletsModule } from './wallets/wallets.module';
+import { AuthModule } from './auth/auth.module';
 import { RefundsModule } from './refunds/refunds.module';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
-      autoSchemaFile: true,
-    }),
     UsersModule,
+    CommonModule,
     ProductsModule,
     OrdersModule,
-    SettingsModule,
-    CouponsModule,
     CategoriesModule,
+    AnalyticsModule,
     AttributesModule,
-    AddressesModule,
+    ShippingsModule,
+    TaxesModule,
+    TagsModule,
     ShopsModule,
     TypesModule,
-    TagsModule,
-    UploadsModule,
-    // CommonModule,
     WithdrawsModule,
-    TaxesModule,
-    ShippingsModule,
-    AnalyticsModule,
+    UploadsModule,
+    SettingsModule,
+    CouponsModule,
+    AddressesModule,
     ImportsModule,
-    WalletsModule,
+    AuthModule,
     RefundsModule,
   ],
   controllers: [],

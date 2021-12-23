@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { CreateShopInput } from './dto/create-shop.input';
-import { UpdateShopInput } from './dto/update-shop.input';
+import { CreateShopDto } from './dto/create-shop.dto';
+import { UpdateShopDto } from './dto/update-shop.dto';
 import { Shop } from './entities/shop.entity';
-import Fuse from 'fuse.js';
 import shopsJson from './shops.json';
-import { GetShopsArgs } from './dto/get-shops.args';
+import Fuse from 'fuse.js';
+import { GetShopsDto } from './dto/get-shops.dto';
 import { paginate } from 'src/common/pagination/paginate';
-import { GetShopArgs } from './dto/get-shop.args';
-import { GetStaffsArgs } from './dto/get-staffs.args';
+import { GetStaffsDto } from './dto/get-staffs.dto';
+
 const shops = plainToClass(Shop, shopsJson);
 const options = {
-  keys: ['name', 'type.slug'],
+  keys: ['name', 'type.slug', 'is_active'],
   threshold: 0.3,
 };
 const fuse = new Fuse(shops, options);
@@ -19,48 +19,62 @@ const fuse = new Fuse(shops, options);
 export class ShopsService {
   private shops: Shop[] = shops;
 
-  create(createShopInput: CreateShopInput) {
+  create(createShopDto: CreateShopDto) {
     return this.shops[0];
   }
 
-  getShops({ text, first, page }: GetShopsArgs) {
-    const startIndex = (page - 1) * first;
-    const endIndex = page * first;
+  getShops({ search, limit, page }: GetShopsDto) {
+    if (!page) page = 1;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
     let data: Shop[] = this.shops;
-    if (text?.replace(/%/g, '')) {
-      data = fuse.search(text)?.map(({ item }) => item);
+    if (search) {
+      const parseSearchParams = search.split(';');
+      for (const searchParam of parseSearchParams) {
+        const [key, value] = searchParam.split(':');
+        // data = data.filter((item) => item[key] === value);
+        data = fuse.search(value)?.map(({ item }) => item);
+      }
     }
+    // if (text?.replace(/%/g, '')) {
+    //   data = fuse.search(text)?.map(({ item }) => item);
+    // }
     const results = data.slice(startIndex, endIndex);
+    const url = `/shops?search=${search}&limit=${limit}`;
+
     return {
       data: results,
-      paginatorInfo: paginate(data.length, page, first, results.length),
+      ...paginate(data.length, page, limit, results.length, url),
     };
   }
-  getStaffs({ shop_id, first, page }: GetStaffsArgs) {
-    const startIndex = (page - 1) * first;
-    const endIndex = page * first;
+  getStaffs({ shop_id, limit, page }: GetStaffsDto) {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
     let staffs: Shop['staffs'] = [];
     if (shop_id) {
       staffs = this.shops.find((p) => p.id === Number(shop_id))?.staffs ?? [];
     }
     const results = staffs?.slice(startIndex, endIndex);
+    const url = `/staffs?limit=${limit}`;
+
     return {
       data: results,
-      paginatorInfo: paginate(staffs?.length, page, first, results?.length),
+      ...paginate(staffs?.length, page, limit, results?.length, url),
     };
   }
 
-  getShop({ id, slug }: GetShopArgs): Shop {
-    if (id) {
-      return this.shops.find((p) => p.id === id);
-    }
+  getShop(slug: string): Shop {
     return this.shops.find((p) => p.slug === slug);
   }
 
-  update(id: number, updateShopInput: UpdateShopInput) {
+  update(id: number, updateShopDto: UpdateShopDto) {
     return this.shops[0];
   }
 
+  approve(id: number) {
+    return `This action removes a #${id} shop`;
+  }
   remove(id: number) {
     return `This action removes a #${id} shop`;
   }

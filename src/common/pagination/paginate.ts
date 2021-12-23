@@ -1,4 +1,5 @@
-import { PaginatorInfo } from '../dto/paginator-info.model';
+import { APP_URL } from '../constants';
+import { PaginatorInfo } from '../dto/paginator-info.dto';
 
 export function paginate(
   totalItems: number,
@@ -6,6 +7,7 @@ export function paginate(
   pageSize = 10,
   count = 0,
   // maxPages = 10,
+  url = '',
 ): PaginatorInfo {
   // calculate total pages
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -53,16 +55,19 @@ export function paginate(
   // return object with all pager properties required by the view
   return {
     total: totalItems,
-    currentPage: currentPage,
+    currentPage: +currentPage,
     count,
-    // totalPages: totalPages,
-    // startPage: startPage,
-    // lastPage: endPage,
     lastPage: totalPages,
     firstItem: startIndex,
     lastItem: endIndex,
-    // pages: pages,
     perPage: pageSize,
-    hasMorePages: totalPages > currentPage,
+    first_page_url: `${APP_URL}${url}&page=1`,
+    last_page_url: `${APP_URL}${url}&page=${totalPages}`,
+    next_page_url:
+      totalPages > currentPage
+        ? `${APP_URL}${url}&page=${Number(currentPage) + 1}`
+        : null,
+    prev_page_url:
+      totalPages > currentPage ? `${APP_URL}${url}&page=${currentPage}` : null,
   };
 }

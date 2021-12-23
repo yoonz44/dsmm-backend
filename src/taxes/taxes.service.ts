@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { CreateTaxInput } from './dto/create-tax.input';
-import { GetTaxesArgs } from './dto/get-taxes.args';
-import { UpdateTaxInput } from './dto/update-tax.input';
+import { CreateTaxDto } from './dto/create-tax.dto';
+import { UpdateTaxDto } from './dto/update-tax.dto';
 import { Tax } from './entities/tax.entity';
 import taxesJson from './taxes.json';
 const taxes = plainToClass(Tax, taxesJson);
@@ -10,11 +9,11 @@ const taxes = plainToClass(Tax, taxesJson);
 export class TaxesService {
   private taxes: Tax[] = taxes;
 
-  create(createTaxInput: CreateTaxInput) {
+  create(createTaxDto: CreateTaxDto) {
     return this.taxes[0];
   }
 
-  findAll(getTaxesArgs: GetTaxesArgs) {
+  findAll() {
     return this.taxes;
   }
 
@@ -22,7 +21,7 @@ export class TaxesService {
     return this.taxes.find((tax) => tax.id === Number(id));
   }
 
-  update(id: number, updateTaxInput: UpdateTaxInput) {
+  update(id: number, updateTaxDto: UpdateTaxDto) {
     return this.taxes[0];
   }
 

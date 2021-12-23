@@ -1,37 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { paginate } from 'src/common/pagination/paginate';
-import { CreateTagInput } from './dto/create-tag.input';
-import { GetTagsArgs } from './dto/get-tags.args';
-import { UpdateTagInput } from './dto/update-tag.input';
+import { CreateTagDto } from './dto/create-tag.dto';
+import { GetTagsDto } from './dto/get-tags.dto';
+import { UpdateTagDto } from './dto/update-tag.dto';
 import { Tag } from './entities/tag.entity';
 
 @Injectable()
 export class TagsService {
   private tags: Tag[] = [];
-  create({ type, ...createTagInput }: CreateTagInput) {
-    const newTag = {
+
+  create(createTagDto: CreateTagDto) {
+    return {
       id: this.tags.length + 1,
-      slug: createTagInput.name,
-      ...createTagInput,
-      created_at: new Date(),
-      updated_at: new Date(),
+      ...createTagDto,
     };
-    this.tags.push(newTag);
-    return newTag;
   }
 
-  findAll({ page, first }: GetTagsArgs) {
+  findAll({ page, limit }: GetTagsDto) {
+    if (!page) page = 1;
+    const url = `/tags?limit=${limit}`;
     return {
       data: this.tags,
-      paginatorInfo: paginate(this.tags.length, page, first, this.tags.length),
+      ...paginate(this.tags.length, page, limit, this.tags.length, url),
     };
   }
 
   findOne(id: number) {
-    return this.tags.find((tag) => tag.id === Number(id));
+    return `This action returns a #${id} tag`;
   }
 
-  update(id: number, updateTagInput: UpdateTagInput) {
+  update(id: number, updateTagDto: UpdateTagDto) {
     return this.tags[0];
   }
 
